@@ -1,0 +1,26 @@
+
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - DDB_PRODUCT_TABLE=${DDB_PRODUCT_TABLE}
+      - DDB_CONTRACT_TABLE=${DDB_CONTRACT_TABLE}
+      - DDB_FEATURES_TABLE=${DDB_FEATURES_TABLE}
+      - DDB_SNAPSHOT_TABLE=${DDB_SNAPSHOT_TABLE}
+      - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=oasis_admin
+    ports:
+      - "5432:5432"
