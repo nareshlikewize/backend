@@ -1,31 +1,31 @@
 
-# Oasis Admin Backend (FastAPI)
+# Oasis Admin Backend (Static / In-Memory)
 
-## Quick Start
+**No databases required** — all data lives in memory. Perfect for local demos or when you have connectivity issues.
 
+## Run
 ```bash
-cp .env.example .env
-# edit .env with your AWS creds and table names
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
+# http://localhost:8000/docs
 ```
 
-Docker Compose (with Postgres):
+## Endpoints
+- `GET /products` — list seeded + created products
+- `GET /products/{protect_product_id}` — get product
+- `PUT /products` — upsert product **(auto-creates snapshot)**
+- `GET /contracts/{protect_product_id}` — list contracts for product
+- `PUT /contracts` — upsert contract **(auto-creates snapshot)**
+- `GET /features/{protect_product_id}` — list features
+- `PUT /features` — upsert feature
+- `GET /snapshots/{protect_product_id}` — list in-memory snapshots
+- `GET /users` / `POST /users` / `GET /users/roles`
 
-```bash
-docker compose up --build
+## Notes
+- Memory resets on server restart.
+- Snapshot generation mirrors your spec: new snapshot is created when a product or contract is updated.
+- Seeded with your **GoldServicePlan** sample so the UI has data instantly.
 ```
-
-OpenAPI docs: http://localhost:8000/docs
+protect_product_id = F6551D67-9CD2-4F09-9BD4-BAD28E33C945
 ```
-
-### Snapshot Logic
-- Any **PUT /products** or **PUT /contracts** request triggers a snapshot for that `protect_product_id`.
-- The snapshot merges:
-  - Product (table 1)
-  - Contracts (table 2) for `Pricing` and `ClaimLimit`
-  - Features (table 3) for Make/Model list name
-- Writes to Snapshot table (table 4).
-
-> NOTE: This sample assumes `protect_product_id` is the **partition key** for all 4 DynamoDB tables. If your key schema differs, update `app/repositories/dynamo.py` query logic.

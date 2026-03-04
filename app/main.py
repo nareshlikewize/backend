@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from .api.routes import products, contracts, features, snapshots, users
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title='Oasis Admin Backend', version='0.0.1')
+app = FastAPI(title='Oasis Admin Backend (Static/In-Memory)', version='0.0.1')
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,4 +21,4 @@ app.include_router(users.router)
 
 @app.get('/')
 async def root():
-    return { 'status': 'ok' }
+    return { 'status': 'ok', 'mode': 'in-memory' }

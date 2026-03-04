@@ -1,19 +1,22 @@
 
 from fastapi import APIRouter, HTTPException
-from ...repositories import dynamo
+from ...services.store import FEATURES
 
 router = APIRouter(prefix='/features', tags=['features'])
 
 @router.get('/{protect_product_id}')
 def list_features(protect_product_id: str):
-    return dynamo.get_features_by_product(protect_product_id)
+    return [f for f in FEATURES if f.get('protect_product_id') == protect_product_id]
 
 @router.put('')
 def upsert_feature(body: dict):
     if 'protect_product_id' not in body or 'feature' not in body:
         raise HTTPException(400, 'protect_product_id and feature are required')
-    # Accept device_sku list as either list or set
-    if isinstance(body.get('device_sku'), list):
-        body['device_sku'] = list(dict.fromkeys(body['device_sku']))
-    dynamo.put_feature(body)
+    # Upsert by (protect_product_id, feature)
+    for i, f in enumerate(FEATURES):
+        if f.get('protect_product_id')==body['protect_product_id'] and f.get('feature')==body['feature']:
+            FEATURES[i] = body
+            break
+    else:
+        FEATURES.append(body)
     return { 'ok': True }
